@@ -52,22 +52,30 @@
         $(function() {
             var fragments = $.deparam.fragment();
 
-            $("#access_token").val(fragments.access_token);
-            $("#expires_in").html(fragments.expires_in);
-            if (fragments.scope) {
-                var scopes = fragments.scope.split(" ");
-                scopes.forEach(function(scope) {
-                    var li = $("<li></li>");
-                    li.html(scope)
-                    $("#scope").append(li);
-                })
+            if (fragments.access_token) {
+                $("#access_token").val(fragments.access_token);
+                $("#expires_in").html(fragments.expires_in);
+                if (fragments.scope) {
+                    var scopes = fragments.scope.split(" ");
+                    scopes.forEach(function(scope) {
+                        var li = $("<li></li>");
+                        li.html(scope)
+                        $("#scope").append(li);
+                    })
+                }
+
+                $("#main").show();
+            }else {
+                $("#error").html(fragments.error);
+                $("#error_description").html(fragments.error_description);
+                $("#error_page").show();
             }
         })
     </script>
 </head>
 
 <body>
-    <div class="container">
+    <div id="main" class="container" style="display:none">>
         <div id="token" class="panel">
             <div class="panel-heading">
                 <h1 class="panel-title">Access Token</h1>
@@ -119,6 +127,18 @@
                 <h3>Response: </h3>
                 <pre id="api_response"></pre>
             </div>
+        </div>
+    </div>
+
+    <div id="error_page" class="container" style="display:none">
+        <div class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title text-danger" id="error"></h1>
+            </div>
+
+            <h3>
+                <span id="error_description"></span>
+            </h3>
         </div>
     </div>
 </body>
