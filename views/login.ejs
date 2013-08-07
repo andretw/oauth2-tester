@@ -1,0 +1,25 @@
+<html>
+<head>
+    <script type="text/javascript">
+        function qnap_login() {
+            var client_id = "<%= app.app_id%>"
+            var redirect_uri = "<%= app.redirect_uri%>";
+
+            var qnap_auth_url = "<%= api_server%>/v1.1/oauth/auth?response_type=code&client_id=" + client_id;
+            qnap_auth_url += "&redirect_uri=" + redirect_uri;
+            qnap_auth_url += "&scope="
+            <% app.scope.forEach(function(scope) { %>
+                qnap_auth_url += "<%= scope%> "
+            <% }) %>
+
+            window.location.href = qnap_auth_url
+        }
+    </script>
+</head>
+<body>
+    <h1>Demo 3rd party</h1>
+    
+    Login via QNAP Account <input type="submit" value="Login" onclick=qnap_login()>
+
+</body>
+</html>
