@@ -25,7 +25,7 @@ app.set 'views', "#{app.root}/views"
 port = 3000
 server = require("http").createServer(app) 
 
-api_server = "http://auth.qcloud.com:8080"
+api_server = "http://api.qcloud.com:8080"
 
 # Routes
 app.get "/", (req, res) ->
@@ -45,6 +45,8 @@ app.get "/oauth", (req, res) ->
     auth_error = req.param("error")
 
     if auth_code
+        # Authorization code flow callback
+
         # Exchange for access token
         token_endpoint = "#{api_server}/v1.1/oauth/token" 
         body = "grant_type=authorization_code&client_id=#{QNAP_APP_INFO.app_id}&client_secret=#{QNAP_APP_INFO.secret}&code=#{auth_code}&redirect_uri=#{QNAP_APP_INFO.redirect_uri}"
@@ -53,24 +55,30 @@ app.get "/oauth", (req, res) ->
         token_response = JSON.parse(response)
         console.log("RESPONSE /oauth/token", token_response)
 
-    if token_response and token_response.access_token
-        # Get me profile from API
-        api_url = "#{api_server}/v1.1/me"
-        content_type = "application/json"
-        headers = {
-            "Authorization": "Bearer " + token_response.access_token
-        }
-        await http_utils.get api_url, headers, defer err, return_code, response
+        if token_response and token_response.access_token
+            # Get me profile from API
+            api_url = "#{api_server}/v1.1/me"
+            content_type = "application/json"
+            headers = {
+                "Authorization": "Bearer " + token_response.access_token
+            }
+            await http_utils.get api_url, headers, defer err, return_code, response
 
-        me_response = JSON.parse(response)
-        console.log("RESPONSE /me", me_response)
-        result = me_response.result
-    
-    res.render "main",
-        auth_code: auth_code
-        auth_error: auth_error
-        token_response: token_response
-        me_response: me_response
+            me_response = JSON.parse(response)
+            console.log("RESPONSE /me", me_response)
+            result = me_response.result
+        
+        res.render "main_backend",
+            auth_code: auth_code
+            auth_error: auth_error
+            token_response: token_response
+            me_response: me_response
+
+    else
+        # Implicit flow callback
+        res.render "main_frontend",
+            app: QNAP_APP_INFO
+            api_server: api_server
 
 requireAuth = (req, res, next) ->
     if req.session.user?

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='css/bootstrap.min.css' rel='stylesheet' type='text/css'/>
+    <link href='css/bootstrap-glyphicons.css' rel='stylesheet' type='text/css'/>
+    <script src='js/jquery-1.10.2.min.js' type='text/javascript'></script>
+    <script src='js/bootstrap.min.js' type='text/javascript'></script>
+    <script src='js/jquery.ba-bbq.min.js' type='text/javascript'></script>
+    <script type="text/javascript">
+        var client_id = "<%= app.app_id%>";
+        var redirect_uri = "<%= app.redirect_uri%>";
+        var api_server = "<%= api_server%>";
+
+        function api_call(api_url) {
+
+            var access_token = $("#access_token").val();
+            console.log("access_token", access_token);
+            api_url = $.param.querystring(api_server+api_url, { access_token: access_token});
+
+            $("#api_method").html("GET")
+            $("#api_url").html(api_url);
+            $("#API_call").show();
+            $("#api_response_div").hide();
+            var req = $.get(api_url, function(resp) {
+                console.log("response", resp);
+                $("#api_response").html(JSON.stringify(resp,null,2));
+                $("#api_response_div").show();
+            })
+
+            req.fail(function(resp) { 
+                var response = JSON.parse(resp.responseText);
+                $("#api_response").html(JSON.stringify(response,null,2));
+                $("#api_response_div").show();
+            });
+        }
+
+        function get_user_profile() {
+            var api_url = "/v1.1/me";
+            api_call(api_url);
+        }
+
+        function get_device_list() {
+            var api_url = "/v1.1/device";
+            api_call(api_url);
+        }
+
+        function list_cloudlink() {
+            var api_url = "/v1.1/cloudlink";
+            api_call(api_url);
+        }
+
+        $(function() {
+            var fragments = $.deparam.fragment();
+
+            $("#access_token").val(fragments.access_token);
+            $("#expires_in").html(fragments.expires_in);
+            if (fragments.scope) {
+                var scopes = fragments.scope.split(" ");
+                scopes.forEach(function(scope) {
+                    var li = $("<li></li>");
+                    li.html(scope)
+                    $("#scope").append(li);
+                })
+            }
+        })
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div id="token" class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title">Access Token</h1>
+            </div>
+
+            <span>Access Token: </span>
+            <input id="access_token" value="", size=100>
+            <br/>
+            <span>Expires In: <span id="expires_in"></span></span>
+            <br/>
+            <span>Scopes: </span>
+            <ul id="scope"></ul>
+        </div>
+
+        <div id="API" class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title">Try API</h1>
+            </div>
+
+            <p class="lead">
+                API is invoked directly from browser using Ajax.
+            <p>
+
+            <p class="lead">
+                You may change the access token above to try an invalid API call.
+            </p>
+
+            <h4>Valid APIs</h4>
+            <div class="btn-group-vertical">
+                <button class="btn-success" onclick="get_user_profile()">Get User Profile</button>
+                <button class="btn-success" onclick="get_device_list()">Get Device List</button>
+            </div>
+
+            <h4>APIs out of scope</h4>
+            <div class="btn-group-vertical">
+                <button class="btn-danger" onclick="list_cloudlink()">List all cloudlinks</button>
+            </div>
+        </div>
+
+        <div id="API_call" class="panel" style="display:none">
+            <div class="panel-heading">
+                <h1 class="panel-title">API call</h1>
+            </div>
+            <p id="api_request_div" class="lead">
+                <span id="api_method" class="text-primary"></span>&nbsp;
+                <span id="api_url" class="text-primary"></span>
+            </p>
+            <div id="api_response_div" style="display:none">
+                <h3>Response: </h3>
+                <pre id="api_response"></pre>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+            
