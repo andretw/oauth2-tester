@@ -35,7 +35,7 @@ app.get "/", (req, res) ->
     res.redirect "/main.html"
 
 app.get "/login.html", (req, res) ->
-    res.render "login.ejs",
+    res.render "login",
         app: QNAP_APP_INFO
         api_server: api_server
 
@@ -52,14 +52,13 @@ app.get "/oauth", (req, res) ->
 
         token_response = JSON.parse(response)
         console.log("RESPONSE /oauth/token", token_response)
-        result = token_response.result
 
-    if result and result.access_token
+    if token_response and token_response.access_token
         # Get me profile from API
-        api_url = "http://192.168.68.235:8080/v1.1/me"
+        api_url = "#{api_server}/v1.1/me"
         content_type = "application/json"
         headers = {
-            "Authorization": "Bearer " + result.access_token
+            "Authorization": "Bearer " + token_response.access_token
         }
         await http_utils.get api_url, headers, defer err, return_code, response
 
@@ -67,7 +66,7 @@ app.get "/oauth", (req, res) ->
         console.log("RESPONSE /me", me_response)
         result = me_response.result
     
-    res.render "main.jade",
+    res.render "main",
         auth_code: auth_code
         auth_error: auth_error
         token_response: token_response

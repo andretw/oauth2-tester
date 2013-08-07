@@ -1,0 +1,46 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <h2>Auth</h2>
+        <% if (auth_error) {%>
+            <span>Auth Error from QNAP:</span>
+            <input value="<%=auth_error%>", readonly=true, size=100>
+        <% } else { %>
+            <span>Auth Code from QNAP:</span>
+            <input value="<%=auth_code%>", readonly=true, size=100>
+        <% } %>
+
+        <hr/>
+
+        <% if (token_response) { %>
+            <h2>Get Token</h2>
+
+            <span>Access Token: </span>
+            <input value="<%= token_response.access_token%>", readonly=true, size=100>
+            <br/>
+            <span>Expires In: <%= token_response.expires_in%></span>
+            <br/>
+            <span>Scopes: </span>
+            <ul>
+            <% token_response.scope.forEach(function(scope) { %>
+            <li><%=scope%></li>
+            <% }) %>
+            </ul>
+            <br/>
+            <span>Refresh Token:</span>
+            <input value="<%= token_response.refresh_token%>", readonly=true, size=100>
+        <% } %>
+
+        <hr/>
+
+        <% if (me_response) { %>
+
+            <h2>Get /me</h2>
+
+            <span>Response: <%= JSON.stringify(me_response)%></span>
+        <% } %>
+    </body>
+</html>
+            
