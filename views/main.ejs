@@ -1,21 +1,31 @@
-<html>
-    <head>
-    </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='css/bootstrap.min.css' rel='stylesheet' type='text/css'/>
+    <link href='css/bootstrap-glyphicons.css' rel='stylesheet' type='text/css'/>
+    <script src='js/bootstrap.min.js' type='text/javascript'></script>
+</head>
 
-    <body>
-        <h2>Auth</h2>
-        <% if (auth_error) {%>
-            <span>Auth Error from QNAP:</span>
-            <input value="<%=auth_error%>", readonly=true, size=100>
-        <% } else { %>
-            <span>Auth Code from QNAP:</span>
-            <input value="<%=auth_code%>", readonly=true, size=100>
-        <% } %>
+<body>
+    <div class="container">
+        <div id="auth" class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title">Authentication</h1>
+            </div>
+            <% if (auth_error) {%>
+                <span>Auth Error from QNAP:</span>
+                <input value="<%=auth_error%>", readonly=true, size=100>
+            <% } else { %>
+                <span>Auth Code from QNAP:</span>
+                <input value="<%=auth_code%>", readonly=true, size=100>
+            <% } %>
+        </div>
 
-        <hr/>
-
-        <% if (token_response) { %>
-            <h2>Get Token</h2>
+    <% if (token_response) { %>
+        <div id="token" class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title">Access Token</h1>
+            </div>
 
             <span>Access Token: </span>
             <input value="<%= token_response.access_token%>", readonly=true, size=100>
@@ -28,19 +38,23 @@
             <li><%=scope%></li>
             <% }) %>
             </ul>
-            <br/>
             <span>Refresh Token:</span>
             <input value="<%= token_response.refresh_token%>", readonly=true, size=100>
-        <% } %>
+        </div>
+    <% } %>
 
-        <hr/>
+    <% if (me_response) { %>
 
-        <% if (me_response) { %>
+        <div id="me" class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title">Get /me</h1>
+            </div>
 
-            <h2>Get /me</h2>
-
-            <span>Response: <%= JSON.stringify(me_response)%></span>
-        <% } %>
-    </body>
+            <span>Response: </span>
+            <pre><%= JSON.stringify(me_response, null, 2)%></pre>
+        </div>
+    <% } %>
+    </div>
+</body>
 </html>
             

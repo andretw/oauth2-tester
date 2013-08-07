@@ -1,11 +1,15 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <link href='css/bootstrap.min.css' rel='stylesheet' type='text/css'/>
+    <link href='css/bootstrap-glyphicons.css' rel='stylesheet' type='text/css'/>
+    <script src='js/bootstrap.min.js' type='text/javascript'></script>
     <script type="text/javascript">
-        function qnap_login() {
+        function qnap_login(response_type) {
             var client_id = "<%= app.app_id%>"
             var redirect_uri = "<%= app.redirect_uri%>";
 
-            var qnap_auth_url = "<%= api_server%>/v1.1/oauth/auth?response_type=code&client_id=" + client_id;
+            var qnap_auth_url = "<%= api_server%>/v1.1/oauth/auth?response_type="+response_type+"&client_id=" + client_id;
             qnap_auth_url += "&redirect_uri=" + redirect_uri;
             qnap_auth_url += "&scope="
             <% app.scope.forEach(function(scope) { %>
@@ -17,9 +21,33 @@
     </script>
 </head>
 <body>
-    <h1>Demo 3rd party</h1>
-    
-    Login via QNAP Account <input type="submit" value="Login" onclick=qnap_login()>
+    <div class="container">
+        <h1>Demo 3rd party</h1>
+        
+        <div class="row">
+            <div class="col-lg-10">
+                <div id="authorization_code_flow" class="panel">
+                    <div class="panel-heading">
+                        <h1 class="panel-title">Authorization Code Flow</h1>
+                    </div>
+                    <p class="lead">After login, an <strong>auth_code</strong> is redirected to backend, which is later exchanged to <strong>access_token</strong>.</p>
+                    <button type="button" class="btn btn-primary" onclick=qnap_login("code")>Login</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10">
+                <div id="implicit_flow" class="panel">
+                    <div class="panel-heading">
+                        <h1 class="panel-title">Implicit Flow</h1>
+                    </div>
+                    <p class="lead">After login, an <strong>access_token</strong> is directly presented to frontend and frontend only, by including it in the <em>url fragment</em>.</p>
+                    <button type="button" class="btn btn-primary" onclick=qnap_login("token")>Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
