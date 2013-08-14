@@ -44,6 +44,7 @@ app.get "/oauth", (req, res) ->
     auth_code = req.param("code")
     error = req.param("error")
     error_description = req.param("error_description")
+    state = req.param("state")
 
     if auth_code or error
         # Authorization code flow callback
@@ -71,6 +72,7 @@ app.get "/oauth", (req, res) ->
                 result = me_response.result
         
         res.render "main_backend",
+            state: state
             auth_code: auth_code
             error: error
             error_description: error_description
@@ -79,6 +81,7 @@ app.get "/oauth", (req, res) ->
     else
         # Implicit flow callback
         res.render "main_frontend",
+            state: state
             app: QNAP_APP_INFO
             api_server: api_server
 

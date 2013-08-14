@@ -18,6 +18,7 @@
                 qnap_auth_url += "<%= scope%> "
             <% }) %>
             // qnap_auth_url+=" device_write";
+            qnap_auth_url += "&state=homepage+foo"
 
             window.location.href = qnap_auth_url
         }
