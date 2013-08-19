@@ -11,7 +11,7 @@
         var api_server = "<%= api_server%>";
 
         function qnap_login(response_type) {
-            var qnap_auth_url = api_server+"/v1.1/oauth/auth?response_type="+response_type+"&client_id=" + client_id;
+            var qnap_auth_url = api_server+"/oauth/auth?response_type="+response_type+"&client_id=" + client_id;
             qnap_auth_url += "&redirect_uri=" + redirect_uri;
             qnap_auth_url += "&scope="
             <% app.scope.forEach(function(scope) { %>

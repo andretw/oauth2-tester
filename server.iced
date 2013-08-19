@@ -51,7 +51,7 @@ app.get "/oauth", (req, res) ->
 
         if auth_code
             # Exchange for access token
-            token_endpoint = "#{api_server}/v1.1/oauth/token" 
+            token_endpoint = "#{api_server}/oauth/token" 
             body = "grant_type=authorization_code&client_id=#{QNAP_APP_INFO.app_id}&client_secret=#{QNAP_APP_INFO.secret}&code=#{auth_code}&redirect_uri=#{QNAP_APP_INFO.redirect_uri}"
             await http_utils.postForm token_endpoint, body, defer err, return_code, response
 
