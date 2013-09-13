@@ -8,68 +8,56 @@
 </head>
 
 <body>
-    <% if (auth_code) { %>
-        <div class="container">
-            <div id="auth" class="panel">
-                <div class="panel-heading">
-                    <h1 class="panel-title">Authentication</h1>
-                </div>
-                <span>Auth Code from QNAP:</span>
-                <input value="<%=auth_code%>", readonly=true, size=100>
+    <a class="btn btn-primary" href="<%=api_server%>/auth/signout?app_id=<%=app.app_id%>&lang=zh&state=backend">Signout</a>
+    <a class="btn btn-primary" href="<%=api_server%>/auth/profile?app_id=<%=app.app_id%>&lang=zh&state=backend">Profile</a>
+
+    <div class="container">
+        <div id="auth" class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title">Authentication</h1>
             </div>
-
-        <% if (token_response) { %>
-            <div id="token" class="panel">
-                <div class="panel-heading">
-                    <h1 class="panel-title">Access Token</h1>
-                </div>
-
-                <span>Access Token: </span>
-                <input value="<%= token_response.access_token%>", readonly=true, size=100>
-                <br/>
-                <span>Expires In: <%= token_response.expires_in%></span>
-                <br/>
-                <span>Scopes: </span>
-                <ul>
-                <% token_response.scope.forEach(function(scope) { %>
-                <li><%=scope%></li>
-                <% }) %>
-                </ul>
-                <span>Refresh Token:</span>
-                <input value="<%= token_response.refresh_token%>", readonly=true, size=100>
-            </div>
-        <% } %>
-
-        <% if (me_response) { %>
-
-            <div id="me" class="panel">
-                <div class="panel-heading">
-                    <h1 class="panel-title">Get /me</h1>
-                </div>
-
-                <div class="lead">
-                    API is invoked from backend, and render it to browser.
-                </div>
-
-                <span>Response: </span>
-                <pre><%= JSON.stringify(me_response, null, 2)%></pre>
-            </div>
-        <% } %>
+            <span>Auth Code from QNAP:</span>
+            <input value="<%=auth_code%>", readonly=true, size=100>
         </div>
 
-    <% }else if (error) { %>
-        <div id="error_page" class="container">
-            <div class="panel">
-                <div class="panel-heading">
-                    <h1 class="panel-title text-danger" id="error"><%=error%></h1>
-                </div>
-
-                <h3>
-                    <span id="error_description"><%=error_description%></span>
-                </h3>
+    <% if (token_response) { %>
+        <div id="token" class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title">Access Token</h1>
             </div>
+
+            <span>Access Token: </span>
+            <input value="<%= token_response.access_token%>", readonly=true, size=100>
+            <br/>
+            <span>Expires In: <%= token_response.expires_in%></span>
+            <br/>
+            <span>Scopes: </span>
+            <ul>
+            <% token_response.scope.forEach(function(scope) { %>
+            <li><%=scope%></li>
+            <% }) %>
+            </ul>
+            <span>Refresh Token:</span>
+            <input value="<%= token_response.refresh_token%>", readonly=true, size=100>
         </div>
     <% } %>
+
+    <% if (me_response) { %>
+
+        <div id="me" class="panel">
+            <div class="panel-heading">
+                <h1 class="panel-title">Get /me</h1>
+            </div>
+
+            <div class="lead">
+                API is invoked from backend, and render it to browser.
+            </div>
+
+            <span>Response: </span>
+            <pre><%= JSON.stringify(me_response, null, 2)%></pre>
+        </div>
+    <% } %>
+    </div>
 </body>
 </html>
             

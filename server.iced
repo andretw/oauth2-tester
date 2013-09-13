@@ -2,8 +2,8 @@ express = require("express")
 http_utils = require("./http_utils")
 
 QNAP_APP_INFO = {
-    secret : "26YWyuTEk50bToMXLCtQ"
     app_id : "51b178b0b86f7b5338346b71"
+    secret : "26YWyuTEk50bToMXLCtQ"
     redirect_uri : "http://flydrop.com:3000/oauth"
     scope : [ "device", "favorite" ]
 }
@@ -26,6 +26,8 @@ port = 3000
 server = require("http").createServer(app) 
 
 api_server = "http://api.qcloud.com:8080"
+#api_server = "https://dev-api.dev-myqnapcloud.com"
+#api_server = "https://qa-api-nr.api.dev-myqnapcloud.com"
 
 # Routes
 app.get "/", (req, res) ->
@@ -42,48 +44,81 @@ app.get "/login.html", (req, res) ->
 app.get "/oauth", (req, res) ->
     # Get auth code
     auth_code = req.param("code")
+    status = req.param("status")
     error = req.param("error")
     error_description = req.param("error_description")
     state = req.param("state")
 
-    if auth_code or error
-        # Authorization code flow callback
+    switch status 
+        when "back"
+            console.log "back, state=", state
 
-        if auth_code
-            # Exchange for access token
-            token_endpoint = "#{api_server}/oauth/token" 
-            body = "grant_type=authorization_code&client_id=#{QNAP_APP_INFO.app_id}&client_secret=#{QNAP_APP_INFO.secret}&code=#{auth_code}&redirect_uri=#{QNAP_APP_INFO.redirect_uri}"
-            await http_utils.postForm token_endpoint, body, defer err, return_code, response
+            if state == "backend"
+                res.redirect "/main_backend"
+            else
+                res.redirect "/main_frontend"
 
-            token_response = JSON.parse(response)
-            console.log("RESPONSE /oauth/token", token_response)
+        when "signed_out"
+            delete req.session.user
+            res.redirect "/"
 
-            if token_response and token_response.access_token
-                # Get me profile from API
-                api_url = "#{api_server}/v1.1/me"
-                content_type = "application/json"
-                headers = {
-                    "Authorization": "Bearer " + token_response.access_token
-                }
-                await http_utils.get api_url, headers, defer err, return_code, response
+        else
+            if error
+                res.render "error",
+                    error: error
+                    error_description: error_description
 
-                me_response = JSON.parse(response)
-                console.log("RESPONSE /me", me_response)
-                result = me_response.result
-        
-        res.render "main_backend",
-            state: state
-            auth_code: auth_code
-            error: error
-            error_description: error_description
-            token_response: token_response
-            me_response: me_response
-    else
-        # Implicit flow callback
-        res.render "main_frontend",
-            state: state
-            app: QNAP_APP_INFO
-            api_server: api_server
+            else if auth_code
+                console.log "Get auth_code", auth_code
+                req.session.auth_code = auth_code
+
+                # Authorization code flow callback
+                token_response = {}
+                    
+                # Exchange for access token
+                token_endpoint = "#{api_server}/oauth/token" 
+                body = "grant_type=authorization_code&client_id=#{QNAP_APP_INFO.app_id}&client_secret=#{QNAP_APP_INFO.secret}&code=#{auth_code}&redirect_uri=#{QNAP_APP_INFO.redirect_uri}"
+                await http_utils.postForm token_endpoint, body, defer err, return_code, response
+
+                if err
+                    console.log("ERROR", err)
+
+                token_response = JSON.parse(response)
+                console.log("RESPONSE /oauth/token", token_response)
+
+                req.session.token_response = token_response
+
+                if token_response and token_response.access_token
+                    req.session.access_token = token_response.access_token
+
+                    res.redirect "/main_backend"
+                
+            else
+                # Implicit flow callback
+                res.render "main_frontend",
+                    app: QNAP_APP_INFO
+                    api_server: api_server
+                
+
+app.get "/main_backend", (req, res) ->
+    # Get me profile from API
+    api_url = "#{api_server}/v1.1/me"
+    content_type = "application/json"
+    headers = {
+        "Authorization": "Bearer " + req.session.access_token
+    }
+    await http_utils.get api_url, headers, defer err, return_code, response
+
+    me_response = JSON.parse(response)
+    console.log("RESPONSE /me", me_response)
+    result = me_response.result
+    
+    res.render "main_backend",
+        auth_code: req.session.auth_code
+        token_response: req.session.token_response
+        me_response: me_response
+        api_server: api_server
+        app: QNAP_APP_INFO
 
 requireAuth = (req, res, next) ->
     if req.session.user?

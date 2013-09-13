@@ -13,14 +13,14 @@
         function qnap_login(response_type) {
             var qnap_auth_url = api_server+"/oauth/auth?response_type="+response_type+"&client_id=" + client_id;
             qnap_auth_url += "&redirect_uri=" + redirect_uri;
-            qnap_auth_url += "&scope="
+            qnap_auth_url += "&scope=";
             <% app.scope.forEach(function(scope) { %>
-                qnap_auth_url += "<%= scope%> "
+                qnap_auth_url += "<%= scope%> ";
             <% }) %>
             // qnap_auth_url+=" device_write";
-            qnap_auth_url += "&state=homepage+foo"
+            qnap_auth_url += "&state=homepage+foo&lang=zh";
 
-            window.location.href = qnap_auth_url
+            window.location.href = qnap_auth_url;
         }
     </script>
 </head>
