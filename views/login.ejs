@@ -8,25 +8,34 @@
     <script type="text/javascript">
         var client_id = "<%= app.app_id%>";
         var redirect_uri = "<%= app.redirect_uri%>";
-        var api_server = "<%= api_server%>";
+        var auth_server = "<%= auth_server%>";
 
         function qnap_login(response_type) {
-            var qnap_auth_url = api_server+"/oauth/auth?response_type="+response_type+"&client_id=" + client_id;
+            var qnap_auth_url = auth_server+"/oauth/auth?response_type="+response_type+"&client_id=" + client_id;
             qnap_auth_url += "&redirect_uri=" + redirect_uri;
             qnap_auth_url += "&scope=";
             <% app.scope.forEach(function(scope) { %>
                 qnap_auth_url += "<%= scope%> ";
             <% }) %>
             // qnap_auth_url+=" device_write";
-            qnap_auth_url += "&state=homepage+foo&lang=zh";
+            qnap_auth_url += "&state=homepage+foo&";
 
             window.location.href = qnap_auth_url;
+        }
+
+        function qnap_signup() {
+            var qnap_signup_url = auth_server+"/auth/signup?app_id="+client_id;
+            qnap_signup_url += "&redirect_uri="+redirect_uri;
+            qnap_signup_url += "&state=homepage+foo&lang=zh";
+            window.location.href = qnap_signup_url;
         }
     </script>
 </head>
 <body>
     <div class="container">
         <h1>Demo 3rd party</h1>
+
+        <button class="btn btn-primary" onclick="qnap_signup()">Sign Up</button>
         
         <div class="row">
             <div class="col-lg-10">

@@ -6,30 +6,51 @@
     <script src='js/jquery-1.10.2.min.js' type='text/javascript'></script>
     <script src='js/bootstrap.min.js' type='text/javascript'></script>
     <script src='js/jquery.ba-bbq.min.js' type='text/javascript'></script>
+    <!--[if gte IE 8]><script src="js/jquery.xdr-transport.js"></script><![endif]-->
     <script type="text/javascript">
+        if (!window.console || !console.log) {
+            window.console = {
+                log: function() {}
+            }
+        }
+
         var client_id = "<%= app.app_id%>";
         var redirect_uri = "<%= app.redirect_uri%>";
         var api_server = "<%= api_server%>";
+        var access_token;
+
+        function check_token_status() {
+
+        }
 
         function api_call(api_url) {
-
-            var access_token = $("#access_token").val();
-            console.log("access_token", access_token);
+            window.console.log("access_token", access_token);
             api_url = $.param.querystring(api_server+api_url, { access_token: access_token});
 
             $("#api_method").html("GET")
             $("#api_url").html(api_url);
             $("#API_call").show();
             $("#api_response_div").hide();
-            var req = $.get(api_url, function(resp) {
-                console.log("response", resp);
-                $("#api_response").html(JSON.stringify(resp,null,2));
-                $("#api_response_div").show();
+            var req = $.ajax({
+                url: api_url, 
+                method: "get",
+                xhrFields: {
+                  withCredentials: true
+                }
             })
 
+            req.success(function(resp) {
+                window.console.log("response", resp);
+                $("#api_response").html(JSON.stringify(resp,null,2));
+                $("#api_response_div").show();
+            });
+
             req.fail(function(resp) { 
-                var response = JSON.parse(resp.responseText);
-                $("#api_response").html(JSON.stringify(response,null,2));
+                if (resp.responseText) {
+                    var response = JSON.parse(resp.responseText);
+                    $("#api_response").html(JSON.stringify(response,null,2));
+                }
+                $("#http_status").html(resp.status);
                 $("#api_response_div").show();
             });
         }
@@ -49,19 +70,25 @@
             api_call(api_url);
         }
 
+        function check_access_token() {
+            api_call("/oauth/status?access_token="+access_token);
+        }
+
         $(function() {
             var fragments = $.deparam.fragment();
 
             if (fragments.access_token) {
+                access_token = fragments.access_token;
                 $("#access_token").val(fragments.access_token);
                 $("#expires_in").html(fragments.expires_in);
                 if (fragments.scope) {
                     var scopes = fragments.scope.split(" ");
-                    scopes.forEach(function(scope) {
+                    for (var i=0 ; i<scopes.length ; i++) {
+                        var scope = scopes[i];
                         var li = $("<li></li>");
-                        li.html(scope)
+                        li.html(scope);
                         $("#scope").append(li);
-                    })
+                    }
                 }
 
                 $("#main").show();
@@ -113,6 +140,11 @@
             <div class="btn-group-vertical">
                 <button class="btn-danger" onclick="list_cloudlink()">List all cloudlinks</button>
             </div>
+
+            <h4>Check access token</h4>
+            <div class="btn-group-vertical">
+                <button class="btn-info" onclick="check_access_token()">Check Access Token</button>
+            </div>
         </div>
 
         <div id="API_call" class="panel" style="display:none">
@@ -124,7 +156,7 @@
                 <span id="api_url" class="text-primary"></span>
             </p>
             <div id="api_response_div" style="display:none">
-                <h3>Response: </h3>
+                <h3>Response: (<span id="http_status"></span>)</h3>
                 <pre id="api_response"></pre>
             </div>
         </div>

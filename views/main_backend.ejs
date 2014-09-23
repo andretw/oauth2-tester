@@ -8,8 +8,8 @@
 </head>
 
 <body>
-    <a class="btn btn-primary" href="<%=api_server%>/auth/signout?app_id=<%=app.app_id%>&lang=zh&state=backend">Signout</a>
-    <a class="btn btn-primary" href="<%=api_server%>/auth/profile?app_id=<%=app.app_id%>&lang=zh&state=backend">Profile</a>
+    <a class="btn btn-primary" href="<%=auth_server%>/auth/signout?app_id=<%=app.app_id%>&state=backend&redirect_uri=<%=app.redirect_uri%>">Signout</a>
+    <a class="btn btn-primary" href="<%=auth_server%>/auth/profile?app_id=<%=app.app_id%>&state=backend&redirect_uri=<%=app.redirect_uri%>">Profile</a>
 
     <div class="container">
         <div id="auth" class="panel">

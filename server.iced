@@ -4,7 +4,8 @@ http_utils = require("./http_utils")
 QNAP_APP_INFO = {
     app_id : "51b178b0b86f7b5338346b71"
     secret : "26YWyuTEk50bToMXLCtQ"
-    redirect_uri : "http://flydrop.com:3000/oauth"
+    # redirect_uri : "http://flydrop.com:3000/oauth"
+    redirect_uri : "http://flydrop.com.tw:3000/oauth"
     scope : [ "device", "favorite" ]
 }
 
@@ -25,7 +26,10 @@ app.set 'views', "#{app.root}/views"
 port = 3000
 server = require("http").createServer(app) 
 
-api_server = "http://api.qcloud.com:8080"
+# auth_server = "http://localhost.dev-myqnapcloud.com"
+auth_server = "https://dev-portal.dev-myqnapcloud.com"
+
+api_server = "http://dev-api.dev-myqnapcloud.com"
 #api_server = "https://dev-api.dev-myqnapcloud.com"
 #api_server = "https://qa-api-nr.api.dev-myqnapcloud.com"
 
@@ -39,15 +43,18 @@ app.get "/", (req, res) ->
 app.get "/login.html", (req, res) ->
     res.render "login",
         app: QNAP_APP_INFO
-        api_server: api_server
+        auth_server: auth_server
 
 app.get "/oauth", (req, res) ->
-    # Get auth code
-    auth_code = req.param("code")
-    status = req.param("status")
-    error = req.param("error")
-    error_description = req.param("error_description")
-    state = req.param("state")
+    console.log "Callback from OAuth"
+
+    # Get response
+    console.log "auth_code: ", auth_code = req.param("code")
+    console.log "status: ", status = req.param("status")
+    console.log "error: ", error = req.param("error")
+    console.log "error_description: ", error_description = req.param("error_description")
+    console.log "state: ", state = req.param("state")
+    console.log "lang: ", lang = req.param("lang")
 
     switch status 
         when "back"
@@ -76,7 +83,7 @@ app.get "/oauth", (req, res) ->
                 token_response = {}
                     
                 # Exchange for access token
-                token_endpoint = "#{api_server}/oauth/token" 
+                token_endpoint = "#{auth_server}/oauth/token" 
                 body = "grant_type=authorization_code&client_id=#{QNAP_APP_INFO.app_id}&client_secret=#{QNAP_APP_INFO.secret}&code=#{auth_code}&redirect_uri=#{QNAP_APP_INFO.redirect_uri}"
                 await http_utils.postForm token_endpoint, body, defer err, return_code, response
 
@@ -109,8 +116,8 @@ app.get "/main_backend", (req, res) ->
     }
     await http_utils.get api_url, headers, defer err, return_code, response
 
-    me_response = JSON.parse(response)
     console.log("RESPONSE /me", me_response)
+    me_response = JSON.parse(response)
     result = me_response.result
     
     res.render "main_backend",
@@ -118,6 +125,7 @@ app.get "/main_backend", (req, res) ->
         token_response: req.session.token_response
         me_response: me_response
         api_server: api_server
+        auth_server: auth_server
         app: QNAP_APP_INFO
 
 requireAuth = (req, res, next) ->
