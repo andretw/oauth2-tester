@@ -1,7 +1,7 @@
 DEFAULT_TIMEOUT = 10000
 
 logger = {
-    debug: () -> 
+    debug: () ->
     info: () ->
 }
 
@@ -14,7 +14,7 @@ exports.get = (url, headers, opts, callback) ->
     logger.debug "GET to url #{url}"
 
     url = require("url").parse url
-    options = 
+    options =
         hostname: url.hostname
         port: url.port
         path: url.path
@@ -51,14 +51,14 @@ exports.parseForm = (str) ->
     pairs = str.split("&")
     params = {}
     for pair in pairs
-        key_value = pair.split("=") 
+        key_value = pair.split("=")
         params[key_value[0]] = key_value[1]
 
     return params
 
-# 
+#
 # Post form content to url
-# 
+#
 exports.postForm = (url, body, callback) ->
     exports.post url, "application/x-www-form-urlencoded", null, body, callback
 
@@ -71,7 +71,7 @@ exports.post = (url, content_type, headers, body, opts, callback) ->
     logger.debug "POST to url #{url} with body of content type #{content_type}", body
 
     url = require("url").parse url
-    options = 
+    options =
         hostname: url.hostname
         port: url.port
         path: url.path
@@ -95,7 +95,7 @@ exports.post = (url, content_type, headers, body, opts, callback) ->
             callback && callback null, res.statusCode, res_body
 
     post_request.on "error", (e) ->
-        callback && callback e
+        callback && callback e, res.statusCode, res_body
 
     timeout = opts.timeout
     timeout ?= DEFAULT_TIMEOUT

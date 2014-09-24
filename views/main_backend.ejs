@@ -8,16 +8,29 @@
 </head>
 
 <body>
-    <a class="btn btn-primary" href="<%=auth_server%>/auth/signout?app_id=<%=app.app_id%>&state=backend&redirect_uri=<%=app.redirect_uri%>">Signout</a>
-    <a class="btn btn-primary" href="<%=auth_server%>/auth/profile?app_id=<%=app.app_id%>&state=backend&redirect_uri=<%=app.redirect_uri%>">Profile</a>
 
     <div class="container">
+        <p></p>
+        <p>
+            <a class="btn btn-primary" href="<%=auth_server%>/auth/signout?app_id=<%=app.app_id%>&state=backend&redirect_uri=<%=app.redirect_uri%>">Signout</a>
+            <a class="btn btn-primary" href="<%=auth_server%>/auth/profile?app_id=<%=app.app_id%>&state=backend&redirect_uri=<%=app.redirect_uri%>">Profile</a>
+        </p>
+
+
         <div id="auth" class="panel">
             <div class="panel-heading">
                 <h1 class="panel-title">Authentication</h1>
             </div>
             <span>Auth Code from QNAP:</span>
             <input value="<%=auth_code%>", readonly=true, size=100>
+            <% if (auth_code) { %>
+                <a class="btn btn-primary" href="./oauth?app_id=<%=app.app_id%>&status=exchange_code&redirect_uri=<%=app.redirect_uri%>&code=<%=auth_code%>">Get Access Token</a>
+                <% if (exchange_code_response) { %>
+                <p></p>
+                <span>Response: </span>
+                <pre><%= JSON.stringify(exchange_code_response, null, 2)%></pre>
+                <% } %>
+            <% } %>
         </div>
 
     <% if (token_response) { %>
@@ -40,7 +53,23 @@
             <span>Refresh Token:</span>
             <input value="<%= token_response.refresh_token%>", readonly=true, size=100>
         </div>
-    <% } %>
+    <% } else { %>
+    <div id="token" class="panel">
+        <div class="panel-heading">
+            <h1 class="panel-title">Access Token</h1>
+        </div>
+
+        <span>Access Token: </span>
+        <input value="", readonly=true, size=100>
+        <br/>
+        <span>Expires In: </span>
+        <br/>
+        <span>Scopes: </span>
+        <span>Refresh Token:</span>
+        <input value="", readonly=true, size=100>
+    </div>
+<% } %>
+
 
     <% if (me_response) { %>
 
@@ -60,4 +89,3 @@
     </div>
 </body>
 </html>
-            
